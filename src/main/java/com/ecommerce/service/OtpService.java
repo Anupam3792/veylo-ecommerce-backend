@@ -3,12 +3,18 @@ package com.ecommerce.service;
 import com.ecommerce.model.Otp;
 import com.ecommerce.repository.OtpRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class OtpService {
@@ -16,11 +22,14 @@ public class OtpService {
     @Autowired
     private OtpRepository otpRepository;
 
-    @Autowired
-    private JavaMailSender mailSender;
+    @Value("${brevo.api-key}")
+    private String brevoApiKey;
 
-    private static final int OTP_LENGTH = 6;
+    @Value("${brevo.sender-email}")
+    private String senderEmail;
+
     private static final int EXPIRY_MINUTES = 5;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     public void generateAndSendOtp(String email) {
         String code = generateCode();
@@ -67,10 +76,30 @@ public class OtpService {
     }
 
     private void sendEmail(String toEmail, String code) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(toEmail);
-        message.setSubject("Your Veylo verification code");
-        message.setText("Your OTP is: " + code + "\n\nThis code expires in " + EXPIRY_MINUTES + " minutes.\n\nIf you didn't request this, you can safely ignore this email.");
-        mailSender.send(message);
+        String url = "https://api.brevo.com/v3/smtp/email";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("api-key", brevoApiKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+        Map<String, Object> sender = new HashMap<>();
+        sender.put("name", "Veylo");
+        sender.put("email", senderEmail);
+
+        Map<String, String> recipient = new HashMap<>();
+        recipient.put("email", toEmail);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("sender", sender);
+        body.put("to", List.of(recipient));
+        body.put("subject", "Your Veylo verification code");
+        body.put("htmlContent",
+                "<p>Your OTP is: <strong>" + code + "</strong></p>" +
+                "<p>This code expires in " + EXPIRY_MINUTES + " minutes.</p>" +
+                "<p>If you didn't request this, you can safely ignore this email.</p>");
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+        restTemplate.postForEntity(url, request, String.class);
     }
 }

@@ -31,3 +31,7 @@ jwt:
 razorpay:
   key-id: ${RAZORPAY_KEY_ID}
   key-secret: ${RAZORPAY_KEY_SECRET}
+  
+  brevo:
+    api-key: ${BREVO_API_KEY}
+    sender-email: ${BREVO_SENDER_EMAIL}
