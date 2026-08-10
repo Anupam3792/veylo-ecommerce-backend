@@ -20,7 +20,7 @@ public class ProductService {
     }
 
     public List<Product> searchProducts(String keyword) {
-        return productRepository.findByActiveTrueAndNameContainingIgnoreCase(keyword);
+        return productRepository.searchByKeyword(keyword);
     }
 
     public Optional<Product> getProductById(Long id) {
