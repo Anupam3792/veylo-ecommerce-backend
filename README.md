@@ -185,4 +185,4 @@ Java Full Stack Developer
 
 ## 📄 License
 
-This project is for portfolio and learning purposes.
+This project is for portfolio and learning purposes
