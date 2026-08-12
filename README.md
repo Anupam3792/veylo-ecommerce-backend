@@ -1,70 +1,42 @@
-# 🛍️ Veylo — Full Stack E-Commerce Platform
+# 🛍️ Veylo — Backend (Spring Boot REST API)
 
-Veylo is a production-style, full-stack e-commerce web application built with a **Spring Boot** REST API backend and a **React** frontend. It supports the complete shopping journey — browsing, cart, checkout with real payments, order tracking — along with a role-based **admin dashboard** for managing products, orders, and analytics.
+This is the **backend** of Veylo, a full-stack e-commerce platform. It's a Java Spring Boot REST API that powers product management, cart & order processing, payments, authentication, and the admin dashboard.
 
-**🔗 Live Demo:** [veylo-ecommerce-frontend.vercel.app](https://veylo-ecommerce-frontend.vercel.app)
+**🔗 Live API:** [veylo-ecommerce-backend.onrender.com](https://veylo-ecommerce-backend.onrender.com)
+**🔗 Frontend repo:** [veylo-ecommerce-frontend](https://github.com/Anupam3792/veylo-ecommerce-frontend) · [Live site](https://veylo-ecommerce-frontend.vercel.app)
 
 ---
 
-## ✨ Features
+## ✨ What this service does
 
-### Customer
-- Product catalog with search, filters, and categories
-- Product detail pages with image gallery, reviews & ratings, and related products
-- Cart & wishlist management
-- Secure checkout with **Razorpay** payment gateway integration
-- Coupon / promo code support
-- Order history and tracking
-- Responsive, mobile-friendly UI with smooth page transitions
-
-### Admin
-- Role-based admin dashboard (separate from customer view)
-- Product management (create, update, delete, inventory)
-- Order management with live status and payment details
-- Sales & order analytics
-- User management
-- Real-time notification system
+- Product catalog APIs (CRUD, search, filters, categories)
+- Cart & order processing
+- Secure authentication & role-based access (customer vs. admin)
+- Razorpay payment order creation & signature verification
+- Order management & analytics for the admin dashboard
+- Review & rating APIs
+- Notification system
 
 ---
 
 ## 🧱 Tech Stack
 
-**Backend**
 - Java, Spring Boot, Spring MVC, Spring Security
 - Hibernate (JPA) — ORM & database layer
 - MySQL (hosted on Aiven Cloud)
 - REST APIs
 - Maven
-
-**Frontend**
-- React.js (Vite)
-- Tailwind CSS
-- Framer Motion (animations)
-- Axios
-
-**Integrations & Tooling**
-- Razorpay — payment gateway
-- Git / GitHub — version control
-- Deployment: **Vercel** (frontend) + **Render** (backend)
+- Deployed on **Render**
 
 ---
 
 ## 🏗️ Architecture
 
-```
-┌─────────────────┐        REST API        ┌──────────────────┐
-│   React Frontend │ ─────────────────────▶ │  Spring Boot API  │
-│   (Vercel)        │ ◀───────────────────── │  (Render)          │
-└─────────────────┘        JSON / HTTPS      └──────────────────┘
-                                                       │
-                                                       ▼
-                                              ┌──────────────────┐
-                                              │   MySQL Database  │
-                                              │   (Aiven Cloud)    │
-                                              └──────────────────┘
-```
+Follows a layered **Controller → Service → Repository (DAO)** architecture with clear separation of concerns, and entity models mapped via Hibernate ORM.
 
-The backend follows a layered **Controller → Service → DAO/Repository** architecture with clear separation of concerns. The frontend consumes the REST API and manages state via React Context (auth, cart, wishlist, notifications).
+```
+Controller  →  Service  →  Repository  →  MySQL (Aiven Cloud)
+```
 
 ---
 
@@ -72,106 +44,69 @@ The backend follows a layered **Controller → Service → DAO/Repository** arch
 
 ### Prerequisites
 - Java 17+
-- Node.js 18+
-- MySQL instance (local or cloud)
 - Maven
+- A MySQL instance (local or cloud)
 
-### Backend Setup
+### Setup
 
-```bash
-cd backend
-```
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Anupam3792/veylo-ecommerce-backend.git
+   cd veylo-ecommerce-backend
+   ```
 
-Configure your database and secrets in `src/main/resources/application.properties`:
+2. Configure your database and secrets in `src/main/resources/application.properties`:
+   ```properties
+   spring.datasource.url=jdbc:mysql://<host>:<port>/<database>
+   spring.datasource.username=<username>
+   spring.datasource.password=<password>
 
-```properties
-spring.datasource.url=jdbc:mysql://<host>:<port>/<database>
-spring.datasource.username=<username>
-spring.datasource.password=<password>
+   razorpay.key.id=<your_razorpay_key_id>
+   razorpay.key.secret=<your_razorpay_key_secret>
 
-razorpay.key.id=<your_razorpay_key_id>
-razorpay.key.secret=<your_razorpay_key_secret>
+   jwt.secret=<your_jwt_secret>
+   ```
 
-jwt.secret=<your_jwt_secret>
-```
-
-Run the backend:
-
-```bash
-mvn spring-boot:run
-```
+3. Run the application:
+   ```bash
+   mvn spring-boot:run
+   ```
 
 The API will start on `http://localhost:8080`.
-
-### Frontend Setup
-
-```bash
-cd frontend
-npm install
-```
-
-Create a `.env` file in the frontend root:
-
-```env
-VITE_API_BASE_URL=http://localhost:8080
-VITE_RAZORPAY_KEY_ID=<your_razorpay_key_id>
-```
-
-Run the frontend:
-
-```bash
-npm run dev
-```
-
-The app will start on `http://localhost:5173`.
 
 ---
 
 ## 📁 Project Structure
 
 ```
-veylo/
-├── backend/
-│   ├── src/main/java/com/ecommerce/
-│   │   ├── controller/     # REST API endpoints
-│   │   ├── service/        # Business logic
-│   │   ├── repository/     # Data access layer
-│   │   ├── model/          # Entity classes
-│   │   └── config/         # Security & app configuration
-│   └── src/main/resources/
-│       └── application.properties
-│
-└── frontend/
-    ├── src/
-    │   ├── pages/           # Route-level pages (Home, Catalog, Checkout, Admin, etc.)
-    │   ├── components/      # Reusable UI components
-    │   ├── context/         # Global state (Auth, Cart, Wishlist, Notifications)
-    │   └── services/        # API client
-    └── public/
+src/main/java/com/ecommerce/
+├── controller/     # REST API endpoints
+├── service/        # Business logic
+├── repository/     # Data access layer
+├── model/          # Entity classes
+└── config/         # Security & app configuration
 ```
 
 ---
 
 ## 🔑 Key API Endpoints
 
-| Method | Endpoint                  | Description                     |
-|--------|----------------------------|----------------------------------|
-| GET    | `/api/products`            | Fetch all products              |
-| GET    | `/api/products/{id}`       | Fetch a single product          |
-| POST   | `/api/orders`               | Place a new order               |
-| GET    | `/api/orders`               | Fetch orders (admin)            |
-| POST   | `/api/payment/create-order` | Create a Razorpay order         |
-| POST   | `/api/payment/verify`       | Verify payment signature        |
-| POST   | `/api/auth/login`           | User login                      |
-| POST   | `/api/auth/register`        | User registration               |
+| Method | Endpoint                      | Description                  |
+|--------|--------------------------------|-------------------------------|
+| GET    | `/api/products`                | Fetch all products            |
+| GET    | `/api/products/{id}`           | Fetch a single product        |
+| POST   | `/api/orders`                   | Place a new order             |
+| GET    | `/api/orders`                   | Fetch orders (admin)          |
+| POST   | `/api/payment/create-order`     | Create a Razorpay order       |
+| POST   | `/api/payment/verify`           | Verify payment signature      |
+| POST   | `/api/auth/login`               | User login                    |
+| POST   | `/api/auth/register`            | User registration             |
 
 ---
 
 ## 🌐 Deployment
 
-- **Frontend** — deployed on [Vercel](https://vercel.com), auto-deployed from `main`
-- **Backend** — deployed on [Render](https://render.com), auto-deployed from `main`
-- **Database** — MySQL hosted on [Aiven Cloud](https://aiven.io)
+Deployed on [Render](https://render.com), auto-deployed from `main`. Database hosted on [Aiven Cloud](https://aiven.io) (MySQL).
 
 ---
 
@@ -180,9 +115,3 @@ veylo/
 **Anupam Kumar**
 Java Full Stack Developer
 [GitHub](https://github.com/Anupam3792) • [LinkedIn](https://linkedin.com/in/anupam-kumar-4b6b94261)
-
----
-
-## 📄 License
-
-This project is for portfolio and learning purposes
